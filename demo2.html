@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>縦書き背景画像作成ツール</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #background {
+            width: 100%;
+            height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        #text-input {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        input, button {
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input {
+            width: 60%;
+        }
+        button {
+            margin-left: 10px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        #download-link {
+            margin-top: 20px;
+            display: none;
+            font-size: 18px;
+            color: #007bff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="background">
+        <h1 id="text-display">ここにテキストが表示されます</h1>
+    </div>
+    <div id="text-input">
+        <input type="text" id="input-text" placeholder="背景に表示するテキストを入力してください">
+        <button onclick="setTextAsBackground()">背景を設定</button>
+    </div>
+    <a id="download-link" download="vertical_background.png">背景画像をダウンロード</a>
+
+    <script>
+        function setTextAsBackground() {
+            const text = document.getElementById("input-text").value;
+            const background = document.getElementById("background");
+            const textDisplay = document.getElementById("text-display");
+            const downloadLink = document.getElementById("download-link");
+
+            // デバイスの解像度を取得
+            const canvasWidth = window.innerWidth;
+            const canvasHeight = window.innerHeight;
+
+            // キャンバスを作成
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            // キャンバスのサイズを設定 (スマホの一般的な解像度を考慮)
+            canvas.width = canvasWidth * 2;  // 解像度を上げるため2倍に設定
+            canvas.height = canvasHeight * 2;
+
+            // 背景色を設定し、キャンバスを塗りつぶす
+            context.fillStyle = "#303030";  // 白背景
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            // テキストの文字数に基づいてフォントサイズを調整
+            const maxFontSize = 150;  // 最大フォントサイズ
+            const minFontSize = 20;   // 最小フォントサイズ
+            const lineCount = text.length;  // 縦書き時の行数（文字数）
+
+            // フォントサイズをテキストの長さに基づいて設定
+            let fontSize = Math.max(minFontSize, maxFontSize - (lineCount * 8));
+            context.font = `bold ${fontSize}px Arial`; // フォント設定
+
+            // テキストスタイル設定
+            context.fillStyle = "grey";  // 黒色のテキスト
+            context.textAlign = "center";
+            context.textBaseline = "top";
+
+            // テキストを縦書きに描画
+            const startX = canvas.width / 2;
+            let startY = canvas.height / 4;
+
+            for (let i = 0; i < text.length; i++) {
+                context.fillText(text[i], startX, startY);  // 縦に1文字ずつ描画
+                startY += fontSize + 10;  // 行間を調整しながら下に進む
+            }
+
+            // 背景画像を生成したキャンバスに設定
+            background.style.backgroundImage = `url(${canvas.toDataURL("image/png")})`;
+
+            // テキスト表示を更新
+            textDisplay.innerText = "";
+
+            // 画像をダウンロードリンクとして設定
+            const dataURL = canvas.toDataURL("image/png");
+            downloadLink.href = dataURL;
+            downloadLink.style.display = "inline";  // ダウンロードリンクを表示
+        }
+    </script>
+</body>
+</html>
